@@ -8,7 +8,7 @@
     "tsc": "tsc",
     "dev": "set DEBUG=express:* && ts-node-dev --respawn --transpileOnly ./src/server.ts",
     "prod": "tsc && node ./www/server.js",
-    "build": "npm run clean && tsc && cp -rf src/config www/config && cp .npmrc www/.npmrc && cp package.json www/package.json && cd www && zip -r Archive.zip . && cd ..",
+    "build": "tsc",
     "clean": "rimraf www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -40,7 +40,6 @@
     "eslint": "^6.8.0",
     "eslint-config-google": "^0.14.0",
     "mocha": "^6.1.4",
-    "ncp": "^2.0.0",
     "rimraf": "^2.6.3",
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^3.3.4000"
