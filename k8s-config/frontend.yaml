@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-frontend
+  labels:
+    app: ug-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ug-frontend
+  template:
+    metadata:
+      labels:
+        app: ug-frontend
+    spec:
+      containers:
+      - name: udagram-frontend
+        image: bfoese/udagram-frontend
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: udagram-frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: ug-frontend
+  ports:
+    - protocol: TCP
+      port: 8100
+      targetPort: 80
