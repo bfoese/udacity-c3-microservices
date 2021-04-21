@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-api-gateway
+  labels:
+    app: ug-api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ug-api-gateway
+  template:
+    metadata:
+      labels:
+        app: ug-api-gateway
+    spec:
+      containers:
+      - name: udagram-api-gateway
+        image: bfoese/udagram-api-gateway
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: FRONTEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: FRONTEND_URL
+
+        - name: USER_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: USER_API_URL
+
+        - name: FEED_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: FEED_API_URL
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: udagram-api-gateway
+  labels:
+    app: ug-api-gateway
+spec:
+  type: LoadBalancer
+  selector:
+    app: ug-api-gateway
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

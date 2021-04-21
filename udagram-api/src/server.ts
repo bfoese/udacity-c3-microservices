@@ -25,7 +25,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
   for (const path of Array.from(apiPathToEndpoint.keys())) {
     app.use(`/api/v*/${path}`, createProxyMiddleware({
       target: apiPathToEndpoint.get(path),
-      changeOrigin: true,
+      changeOrigin: false,
     }));
   }
 

@@ -4,7 +4,9 @@ branches:
 
 jobs:
   include:
-    - language: node_js
+    - stage: "Build"
+      name: "Image api-gateway"
+      language: node_js
       node_js:
         - 14
       services:
@@ -19,6 +21,7 @@ jobs:
         - docker push bfoese/udagram-api-gateway
 
     - language: node_js
+      name: "Image api-feed"
       node_js:
         - 14
       services:
@@ -33,6 +36,7 @@ jobs:
         - docker push bfoese/udagram-api-feed
 
     - language: node_js
+      name: "Image api-user"
       node_js:
         - 14
       services:
@@ -47,6 +51,7 @@ jobs:
         - docker push bfoese/udagram-api-user
 
     - language: node_js
+      name: "Image frontend"
       node_js:
         - 14
       services:
@@ -59,3 +64,7 @@ jobs:
       after_success:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - docker push bfoese/udagram-frontend
+
+    # - stage: deploy
+    #   name: "Deploy to AWS EKS"
+    #   script: ./deploy

@@ -25,7 +25,4 @@ COPY --from=builder /usr/src/app/www /usr/share/nginx/html
 
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Bind the port that the image will run on
-EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]

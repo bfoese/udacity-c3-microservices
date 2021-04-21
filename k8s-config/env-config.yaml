@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  FRONTEND_URL: http://*
+  USER_API_URL: http://udagram-api-user:8080
+  FEED_API_URL: http://udagram-api-feed:8080
+  AWS_BUCKET: udagram-bfoese-dev
+  AWS_REGION: eu-central-1
+metadata:
+  name: env-config

@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-api-feed
+  labels:
+    app: ug-api-feed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ug-api-feed
+  template:
+    metadata:
+      labels:
+        app: ug-api-feed
+    spec:
+      containers:
+      - name: udagram-api-feed
+        image: bfoese/udagram-api-feed
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        env:
+        - name: AWS_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: AWS_BUCKET
+
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: AWS_REGION
+
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: user
+
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: host
+
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: db
+
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: secret
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: udagram-api-feed
+  labels:
+    app: ug-api-feed
+spec:
+  selector:
+    app: ug-api-feed
+  ports:
+  - port: 8080
+    targetPort: 8080
+

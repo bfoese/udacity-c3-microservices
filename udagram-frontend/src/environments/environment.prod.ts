@@ -3,9 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
+  production: true,
   appName: 'Udagram',
-  apiHost: 'http://localhost:8080/api/v0'
+  // in production nginx will reverse proxy to the static internal cluster domain of the api gateway service
+  apiHost: '/api/v0'
 };
 
 /*

@@ -19,7 +19,7 @@ export class FeedListComponent implements OnInit, OnDestroy {
       this.feedItems = items;
     }));
 
-    await this.feed.getFeed();
+    this.feed.getFeed();
   }
 
   ngOnDestroy(): void {

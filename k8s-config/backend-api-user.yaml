@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-api-user
+  labels:
+    app: ug-api-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ug-api-user
+  template:
+    metadata:
+      labels:
+        app: ug-api-user
+    spec:
+      containers:
+      - name: udagram-api-user
+        image: bfoese/udagram-api-user
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        env:
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: user
+
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: host
+
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: db
+
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: secret
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: udagram-api-user
+  labels:
+    app: ug-api-user
+spec:
+  selector:
+    app: ug-api-user
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+
