@@ -14,7 +14,7 @@ The project is split into two parts:
 2. Environment variables will need to be set. These environment variables include database connection details that should not be hard-coded into the application code.
 #### Environment Script
 A file named `set_env.sh` has been prepared as an optional tool to help you configure these variables on your local development environment.
- 
+
 We do _not_ want your credentials to be stored in git. After pulling this `starter` project, run the following command to tell git to stop tracking the script in git but keep it stored locally. This way, you can use the script for your convenience and reduce risk of exposing your credentials.
 `git rm --cached set_env.sh`
 
@@ -72,3 +72,53 @@ Create an AWS S3 bucket. Set the config values for environment variables prefixe
     npm audit fix
     ```
 5. In `set_env.sh`, environment variables are set with `export $VAR=value`. Setting it this way is not permanent; every time you open a new terminal, you will have to run `set_env.sh` to reconfigure your environment variables. To verify if your environment variable is set, you can check the variable with a command like `echo $POSTGRES_USERNAME`.
+
+### AWS Configuration Steps
+
+1. Create Users and Roles
+    1. Create IAM User with Admin Permissions
+        - tell AWS CLI to use this user
+    2. Create Role for EKS cluster management "eksClusterRole"
+        - Policy: AmazonEKSClusterPolicy: Was recommended in AWS docs for this role
+    3. Create Role for EKS cluster node group creation "eksNodeRole"
+        - AmazonEKSWorkerNodePolicy: Was recommended in AWS docs for this role
+        - AmazonEC2ContainerRegistryReadOnly: Was recommended in AWS docs for this role
+        - AmazonEKS_CNI_Policy: This policy was not recommended in the AWS docs of how to create the node group role, but without it, the node group creation failed. In  "kubectl cluster-info dump" there was an error hint saying "NetworkPluginNotReady". This permission fixed the error and creation of a new node group was sucessful.
+2. Create S3 Bucket
+    - block all public access
+    - define CORS policy
+3. Create RDS PostgresSQL database
+4. Create EKS Cluster
+5. Use AWS CLI to bind kubectl to newly created cluster:
+    ´´´´bash
+    # first check if AWS CLI the right user (if not, you need to change the profile):
+    $ aws iam list-users
+    $ aws eks --region eu-central-1 update-kubeconfig --name udacity-microservices
+    $ kubectl cluster-info
+    # if creation of node group in the next step fails, this command can be used to find an error message, when AWS web UI only displays, that node group wasn't created
+    $ kubectl cluster-info dump
+    ´´´´
+5. Create Node Group for Cluster
+    - type: t3.micro
+    - provide ssh key, this can't be updated later and node group creation takes about 30 minutes...
+    - Number of Nodes: t3.micro has maximum number of 4 pods per nodes. Number of nodes in node group should be be enough to handle the pods for the deployments. And kubernetes is also running some pods on the nodes. When pods don't start and message "too many pods" is visible, the node group has to few pods available.
+        ´´´´bash
+        # see all pods
+        $ kubectl get po -A
+        ´´´´
+6. Create Cluster Secrets
+    ````bash
+    $ kubectl create secret generic postgres \
+  --from-literal=username=postgres \
+  --from-literal=password='my-password'
+    $ kubectl get secrets
+    $ kubectl get secret postgres ss -o jsonpath='{.data}'
+    ````
+7. Create Cluster env variable config map
+7. Create Cluster configuration files and apply them with kubectl
+8. Put frontend behind nginx reverse proxy, to be able address the API gateway
+   service via static domain which is only exposed within cluster and not
+   accessable from browser
+
+
+
