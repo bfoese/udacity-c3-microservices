@@ -10,7 +10,6 @@ import { sequelize } from './sequelize';
   await sequelize.sync();
 
   const app = express();
-  const port = config.port || 8080;
 
   app.use(bodyParser.json());
 
@@ -23,7 +22,7 @@ import { sequelize } from './sequelize';
 
 
   // Start the Server
-  app.listen( port, () => {
+  app.listen( config.port, () => {
     console.log( `server running on Port: ${config.port}` );
     console.log( `press CTRL+C to stop server` );
   } );

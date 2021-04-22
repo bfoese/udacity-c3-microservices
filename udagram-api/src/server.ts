@@ -1,13 +1,32 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
+import * as path from 'path';
 import { config } from './config/config';
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const morgan = require('morgan');
+import fs = require('fs');
+const FileStreamRotator = require('file-stream-rotator');
 
 (async () => {
 
   const app = express();
-  const port = config.port || 8080;
+
+  const logDirectory = path.join(__dirname, 'log')
+
+  fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
+
+  // log file rotation
+  const accessLogStream = FileStreamRotator.getStream({
+    date_format: 'YYYYMMDD',
+    filename: path.join(logDirectory, 'access-%DATE%.log'),
+    frequency: 'daily',
+    verbose: false
+  })
+
+  // setup the logger
+  app.use(morgan('combined', { stream: accessLogStream }));
+  app.use(morgan("dev"));
 
   // API gateway centralizes the CORS and auth header logic
   app.use(cors({
@@ -38,7 +57,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
   });
 
   // Start the Server
-  app.listen(port, () => {
+  app.listen(config.port, () => {
     console.log(`server running on Port: ${config.port}`);
     console.log(`press CTRL+C to stop server`);
   });
